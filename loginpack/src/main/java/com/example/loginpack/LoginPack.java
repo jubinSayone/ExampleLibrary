@@ -3,6 +3,7 @@ package com.example.loginpack;
 import android.app.Activity;
 import android.content.pm.PackageManager;
 import android.content.res.Resources;
+import android.support.constraint.ConstraintLayout;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -10,8 +11,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.google.gson.annotations.SerializedName;
+
+import retrofit2.Call;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+
+
 public class LoginPack {
-    LinearLayout mainLayout;
+
+    ConstraintLayout mainLayout;
     Button btnSubmitMobNo;
     Button btnSubmitOtp;
     EditText edtMob;
@@ -21,6 +32,7 @@ public class LoginPack {
     Resources resources;
     Activity activity;
     boolean isMobileValid=false;
+
 
     public interface LogCallback{
         void success();
@@ -87,16 +99,11 @@ public class LoginPack {
             }
         });
 
-
-
-
-
-
     }
 
 
     public static class Builder{
-        String api;
+        static String api;
         int layout;
         int login;
         int otp;
@@ -150,5 +157,69 @@ public class LoginPack {
         }
     }
 
+    public class OtpResponse
+    {
+        @SerializedName("mobile")
+        String mobile;
+        @SerializedName("otp")
+        String otp;
+
+        public OtpResponse(String mobile, String otp) {
+            this.mobile = mobile;
+            this.otp = otp;
+        }
+
+        public String getOtp() {
+            return otp;
+        }
+
+        public void setOtp(String otp) {
+            this.otp = otp;
+        }
+
+        public String getMobile() {
+            return mobile;
+
+        }
+
+        public void setMobile(String mobile) {
+            this.mobile = mobile;
+        }
+    }
+
+    public class RetrofitInstance {
+
+        private  Retrofit retrofit = null;
+        private  String BASE_URL="";
+
+        public  OtpResponse getService(){
+
+
+            if(retrofit==null){
+
+                retrofit=new Retrofit
+                        .Builder()
+                        .baseUrl(BASE_URL)
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build();
+
+            }
+
+            return (OtpResponse) retrofit.create(OtpService.class);
+
+        }
+
+    }
+
+    public interface OtpService {
+
+        @GET
+        Call<OtpResponse> getPopularMovies(@Query("mobile") String apiKey);
+
+    }
 
 }
+
+
+
+
